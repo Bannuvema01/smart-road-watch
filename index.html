@@ -8,258 +8,231 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #f1f5f9;
-}
-
-nav {
-  background: #0f766e;
-  color: white;
-  padding: 1rem;
-  text-align: center;
-}
-
-.section {
-  max-width: 1100px;
-  margin: auto;
-  padding: 1rem;
-}
-
-.card {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 12px;
-  margin-bottom: 1rem;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-
-button {
-  width: 100%;
-  padding: 0.7rem;
-  margin-top: 0.7rem;
-  background: #0d9488;
-  border: none;
-  border-radius: 8px;
-  color: white;
-  font-size: 1rem;
-  cursor: pointer;
-}
-
-button:hover { background: #0f766e; }
-
-input, textarea, select {
-  width: 100%;
-  padding: 0.6rem;
-  margin-top: 0.4rem;
-  border-radius: 6px;
-  border: 1px solid #cbd5e1;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
-}
-
-th, td {
-  border: 1px solid #e5e7eb;
-  padding: 0.6rem;
-  text-align: center;
-}
-
-th { background: #ccfbf1; }
-
-#map {
-  height: 260px;
-  border-radius: 10px;
-}
-
-.hidden { display: none; }
-
-.status-pending { color: #b45309; font-weight: bold; }
-.status-fixed { color: #047857; font-weight: bold; }
+body{font-family:Arial;margin:0;background:#f1f5f9}
+header{background:#0f766e;color:white;padding:15px;text-align:center}
+section{padding:20px}
+button{padding:10px;background:#0d9488;color:white;border:none;border-radius:6px;cursor:pointer}
+button:hover{background:#0f766e}
+input,textarea,select{width:100%;padding:8px;margin:6px 0}
+.hidden{display:none}
+.card{background:white;padding:15px;border-radius:10px;box-shadow:0 4px 10px rgba(0,0,0,.1);margin-bottom:15px}
+#map{height:300px;border-radius:10px;margin:10px 0}
+table{width:100%;border-collapse:collapse}
+th,td{border:1px solid #ddd;padding:8px}
+th{background:#ccfbf1}
 </style>
 </head>
 
 <body>
 
-<nav>
-  <h2>Smart Road Watch</h2>
-</nav>
+<header>
+<h2>Smart Road Watch</h2>
+<p>Pothole Reporting System</p>
+</header>
 
 <!-- ROLE SELECTION -->
-<div id="roleSelect" class="section">
-  <div class="card">
-    <h3>Select Role</h3>
-    <button onclick="openUser()">👤 Citizen – Report Pothole</button>
-    <button onclick="openAdmin()">🛂 Authority – Admin Login</button>
-  </div>
+<section id="roleSelect">
+<div class="card">
+<h3>Select Role</h3>
+<button onclick="openUser()">Report Pothole</button>
+<button onclick="openAdmin()">Authority Login</button>
 </div>
+</section>
 
 <!-- USER SECTION -->
-<div id="userSection" class="section hidden">
+<section id="userSection" class="hidden">
+<div class="card">
+<h3>Report a Pothole</h3>
 
-  <div class="card">
-    <h3>Report a Pothole</h3>
+<label>Upload Photo</label>
+<input type="file" id="photo">
 
-    <label>Upload Photo</label>
-    <input type="file" id="photo" accept="image/*">
+<label>Location (Area Name)</label>
+<input type="text" id="location" readonly>
 
-    <label>Location</label>
-    <input type="text" id="location" placeholder="Road / Area">
+<button onclick="getLocation()">Use Current Location</button>
 
-    <label>Description</label>
-    <textarea id="desc" rows="3"></textarea>
+<div id="map"></div>
 
-    <button onclick="submitReport()">Submit Report</button>
-  </div>
+<label>Description</label>
+<textarea id="desc"></textarea>
 
-  <div class="card">
-    <h3>Pick Location on Map</h3>
-    <div id="map"></div>
-    <button onclick="getLocation()">Use Current Location</button>
-  </div>
-
+<button onclick="submitReport()">Submit Report</button>
+<button onclick="logout()">Back</button>
 </div>
+</section>
 
 <!-- ADMIN LOGIN -->
-<div id="adminLogin" class="section hidden">
-  <div class="card" style="max-width:400px;margin:auto;">
-    <h3>Authority Login</h3>
-    <input id="adminUser" placeholder="Username">
-    <input id="adminPass" type="password" placeholder="Password">
-    <button onclick="loginAdmin()">Login</button>
-  </div>
+<section id="adminLogin" class="hidden">
+<div class="card">
+<h3>Authority Login</h3>
+
+<label>Username</label>
+<input type="text" id="adminUser">
+
+<label>Password</label>
+<input type="password" id="adminPass">
+
+<button onclick="loginAdmin()">Login</button>
+<button onclick="logout()">Back</button>
 </div>
+</section>
 
 <!-- ADMIN DASHBOARD -->
-<div id="adminDashboard" class="section hidden">
-  <div class="card">
-    <h3>Reported Potholes</h3>
+<section id="adminDashboard" class="hidden">
+<div class="card">
+<h3>Reported Potholes</h3>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Photo</th>
-          <th>Location</th>
-          <th>Description</th>
-          <th>Status</th>
-          <th>Update</th>
-        </tr>
-      </thead>
-      <tbody id="adminTable"></tbody>
-    </table>
+<table>
+<thead>
+<tr>
+<th>Photo</th>
+<th>Location</th>
+<th>Description</th>
+<th>Status</th>
+<th>Update</th>
+</tr>
+</thead>
+<tbody id="adminTable"></tbody>
+</table>
 
-    <button onclick="logout()">Logout</button>
-  </div>
+<button onclick="logout()">Logout</button>
 </div>
+</section>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-let reports = [];
-let map = null;
+/* ---------- VARIABLES ---------- */
+let reports=[];
+let map=null;
+let marker=null;
 
-// SECTION CONTROL
-function hideAll() {
-  roleSelect.classList.add("hidden");
-  userSection.classList.add("hidden");
-  adminLogin.classList.add("hidden");
-  adminDashboard.classList.add("hidden");
+/* ---------- UI CONTROL ---------- */
+function hideAll(){
+document.getElementById("roleSelect").classList.add("hidden");
+document.getElementById("userSection").classList.add("hidden");
+document.getElementById("adminLogin").classList.add("hidden");
+document.getElementById("adminDashboard").classList.add("hidden");
 }
 
-function openUser() {
-  hideAll();
-  userSection.classList.remove("hidden");
-  setTimeout(initMapDefault, 300);
+function openUser(){
+hideAll();
+document.getElementById("userSection").classList.remove("hidden");
+setTimeout(initMap,300);
 }
 
-function openAdmin() {
-  hideAll();
-  adminLogin.classList.remove("hidden");
+function openAdmin(){
+hideAll();
+document.getElementById("adminLogin").classList.remove("hidden");
 }
 
-// MAP FUNCTIONS
-function initMapDefault() {
-  if (map) return;
-  map = L.map("map").setView([20.5937, 78.9629], 15);
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
-  L.marker([20.5937, 78.9629]).addTo(map);
+function logout(){
+hideAll();
+document.getElementById("roleSelect").classList.remove("hidden");
 }
 
-function getLocation() {
-  navigator.geolocation.getCurrentPosition(
-    pos => {
-      map.setView([pos.coords.latitude, pos.coords.longitude], 16);
-      L.marker([pos.coords.latitude, pos.coords.longitude]).addTo(map);
-    },
-    () => alert("Location access denied")
-  );
+/* ---------- MAP ---------- */
+function initMap(){
+if(map) return;
+
+map = L.map("map").setView([20.5937,78.9629],15);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"© OpenStreetMap"}).addTo(map);
+
+marker = L.marker([20.5937,78.9629],{draggable:true}).addTo(map);
+reverseGeocode(20.5937,78.9629);
+
+map.on("click",e=>{
+marker.setLatLng(e.latlng);
+reverseGeocode(e.latlng.lat,e.latlng.lng);
+});
+
+marker.on("dragend",()=>{
+const p=marker.getLatLng();
+reverseGeocode(p.lat,p.lng);
+});
 }
 
-// REPORT SUBMISSION
-function submitReport() {
-  const photo = photoInput = document.getElementById("photo").files[0];
-  const loc = location.value.trim();
-  const descText = desc.value.trim();
-
-  if (!photo || !loc || !descText) {
-    alert("Fill all details");
-    return;
-  }
-
-  reports.push({
-    photo: URL.createObjectURL(photo),
-    location: loc,
-    description: descText,
-    status: "Pending"
-  });
-
-  alert("Report submitted (Pending)");
-  photoInput.value = "";
-  location.value = "";
-  desc.value = "";
+function getLocation(){
+navigator.geolocation.getCurrentPosition(pos=>{
+const lat=pos.coords.latitude;
+const lng=pos.coords.longitude;
+map.setView([lat,lng],16);
+marker.setLatLng([lat,lng]);
+reverseGeocode(lat,lng);
+});
 }
 
-// ADMIN
-function loginAdmin() {
-  if (adminUser.value === "admin" && adminPass.value === "1234") {
-    hideAll();
-    adminDashboard.classList.remove("hidden");
-    loadAdmin();
-  } else alert("Invalid login");
+/* ---------- REVERSE GEOCODING ---------- */
+function reverseGeocode(lat,lng){
+fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+.then(res=>res.json())
+.then(data=>{
+document.getElementById("location").value=data.display_name || "Unknown location";
+});
 }
 
-function loadAdmin() {
-  adminTable.innerHTML = "";
-  reports.forEach((r, i) => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td><img src="${r.photo}" width="70"></td>
-      <td>${r.location}</td>
-      <td>${r.description}</td>
-      <td class="${r.status==='Pending'?'status-pending':'status-fixed'}">${r.status}</td>
-      <td>
-        <select onchange="updateStatus(${i}, this.value)">
-          <option ${r.status==='Pending'?'selected':''}>Pending</option>
-          <option ${r.status==='Fixed'?'selected':''}>Fixed</option>
-        </select>
-      </td>
-    `;
-    adminTable.appendChild(row);
-  });
+/* ---------- SUBMIT REPORT ---------- */
+function submitReport(){
+const photo=document.getElementById("photo").files[0];
+const location=document.getElementById("location").value.trim();
+const desc=document.getElementById("desc").value.trim();
+
+if(!photo || !location || !desc){
+alert("Please fill all details");
+return;
 }
 
-function updateStatus(i, val) {
-  reports[i].status = val;
-  loadAdmin();
+reports.push({
+photo:URL.createObjectURL(photo),
+location:location,
+description:desc,
+status:"Pending"
+});
+
+alert("Report submitted successfully");
+document.getElementById("photo").value="";
+document.getElementById("desc").value="";
 }
 
-function logout() {
-  hideAll();
-  roleSelect.classList.remove("hidden");
+/* ---------- ADMIN LOGIN ---------- */
+function loginAdmin(){
+const user=document.getElementById("adminUser").value.trim();
+const pass=document.getElementById("adminPass").value.trim();
+
+if(user==="authority" && pass==="road@123"){
+hideAll();
+document.getElementById("adminDashboard").classList.remove("hidden");
+loadAdmin();
+}else{
+alert("Invalid credentials\nUsername: authority\nPassword: road@123");
+}
+}
+
+/* ---------- ADMIN DASHBOARD ---------- */
+function loadAdmin(){
+const table=document.getElementById("adminTable");
+table.innerHTML="";
+reports.forEach((r,i)=>{
+const row=document.createElement("tr");
+row.innerHTML=`
+<td><img src="${r.photo}" width="80"></td>
+<td>${r.location}</td>
+<td>${r.description}</td>
+<td>${r.status}</td>
+<td>
+<select onchange="updateStatus(${i},this.value)">
+<option ${r.status==="Pending"?"selected":""}>Pending</option>
+<option ${r.status==="Fixed"?"selected":""}>Fixed</option>
+</select>
+</td>`;
+table.appendChild(row);
+});
+}
+
+function updateStatus(i,val){
+reports[i].status=val;
+loadAdmin();
 }
 </script>
 
