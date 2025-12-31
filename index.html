@@ -1,287 +1,267 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart Road Watch</title>
+<meta charset="UTF-8">
+<title>Smart Road Watch</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #f0f4f8;
-    }
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f1f5f9;
+}
 
-    nav {
-      background: linear-gradient(135deg, #0f766e, #0d9488);
-      color: white;
-      padding: 1rem 1.5rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+nav {
+  background: #0f766e;
+  color: white;
+  padding: 1rem;
+  text-align: center;
+}
 
-    nav h1 { margin: 0; font-size: 1.4rem; }
-    nav ul { list-style: none; display: flex; gap: 1rem; margin: 0; padding: 0; }
-    nav li { cursor: pointer; font-weight: 500; }
+.section {
+  max-width: 1100px;
+  margin: auto;
+  padding: 1rem;
+}
 
-    header {
-      background: linear-gradient(135deg, #14b8a6, #0f766e);
-      color: white;
-      text-align: center;
-      padding: 2.5rem 1rem;
-    }
+.card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
 
-    main {
-      max-width: 1100px;
-      margin: auto;
-      padding: 1.5rem;
-    }
+button {
+  width: 100%;
+  padding: 0.7rem;
+  margin-top: 0.7rem;
+  background: #0d9488;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+}
 
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
-    }
+button:hover { background: #0f766e; }
 
-    .card {
-      background: white;
-      padding: 1.5rem;
-      border-radius: 14px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-    }
+input, textarea, select {
+  width: 100%;
+  padding: 0.6rem;
+  margin-top: 0.4rem;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+}
 
-    label {
-      display: block;
-      margin-top: 1rem;
-      font-weight: 600;
-    }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
 
-    input, textarea, button {
-      width: 100%;
-      padding: 0.7rem;
-      margin-top: 0.4rem;
-      border-radius: 8px;
-      border: 1px solid #cbd5e1;
-      font-size: 0.95rem;
-    }
+th, td {
+  border: 1px solid #e5e7eb;
+  padding: 0.6rem;
+  text-align: center;
+}
 
-    button {
-      background: #0d9488;
-      color: white;
-      border: none;
-      cursor: pointer;
-      margin-top: 1rem;
-      font-size: 1rem;
-    }
+th { background: #ccfbf1; }
 
-    button:hover { background: #0f766e; }
+#map {
+  height: 260px;
+  border-radius: 10px;
+}
 
-    #map {
-      height: 320px;
-      border-radius: 12px;
-      margin-top: 1rem;
-    }
+.hidden { display: none; }
 
-    #preview {
-      margin-top: 0.7rem;
-      max-width: 100%;
-      display: none;
-      border-radius: 10px;
-    }
-
-    table {
-      margin-top: 1rem;
-      border-collapse: collapse;
-      width: 100%;
-      font-size: 0.9rem;
-    }
-
-    th, td {
-      border: 1px solid #e5e7eb;
-      padding: 0.6rem;
-      text-align: left;
-    }
-
-    th {
-      background: #ccfbf1;
-    }
-
-    footer {
-      text-align: center;
-      padding: 1rem;
-      font-size: 0.9rem;
-      color: #555;
-    }
-
-    @media (max-width: 768px) {
-      .grid { grid-template-columns: 1fr; }
-    }
-  </style>
+.status-pending { color: #b45309; font-weight: bold; }
+.status-fixed { color: #047857; font-weight: bold; }
+</style>
 </head>
+
 <body>
 
 <nav>
-  <h1>Smart Road Watch</h1>
-  <ul>
-    <li>Home</li>
-    <li>Report</li>
-    <li>About</li>
-    <li>Contact</li>
-  </ul>
+  <h2>Smart Road Watch</h2>
 </nav>
 
-<header>
-  <h2>Report Road Issues Smartly</h2>
-  <p>AI-ready pothole reporting using GPS & maps</p>
-</header>
-
-<main>
-  <div class="grid">
-
-    <div class="card">
-      <h3>Report a Pothole</h3>
-
-      <label>Upload Photo</label>
-      <input type="file" id="photoInput" accept="image/*">
-      <img id="preview">
-
-      <label>Location (Type or Auto-detect)</label>
-      <input type="text" id="locationText" placeholder="Enter area / road name">
-
-      <label>Description</label>
-      <textarea rows="3" placeholder="Describe the pothole"></textarea>
-
-      <button onclick="submitReport()">Submit Report</button>
-
-      <h3 style="margin-top:1.5rem">Submitted Reports</h3>
-      <table id="reportTable">
-        <thead>
-          <tr>
-            <th>Photo</th>
-            <th>Location</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-
-    <div class="card">
-      <h3>Select / Verify Location</h3>
-      <div id="map"></div>
-      <button onclick="getLocation()">Use Current Location</button>
-    </div>
-
+<!-- ROLE SELECTION -->
+<div id="roleSelect" class="section">
+  <div class="card">
+    <h3>Select Role</h3>
+    <button onclick="openUser()">👤 Citizen – Report Pothole</button>
+    <button onclick="openAdmin()">🛂 Authority – Admin Login</button>
   </div>
-</main>
+</div>
 
-<footer>
-  Design Thinking Lab Project | Smart Road Watch
-</footer>
+<!-- USER SECTION -->
+<div id="userSection" class="section hidden">
+
+  <div class="card">
+    <h3>Report a Pothole</h3>
+
+    <label>Upload Photo</label>
+    <input type="file" id="photo" accept="image/*">
+
+    <label>Location</label>
+    <input type="text" id="location" placeholder="Road / Area">
+
+    <label>Description</label>
+    <textarea id="desc" rows="3"></textarea>
+
+    <button onclick="submitReport()">Submit Report</button>
+  </div>
+
+  <div class="card">
+    <h3>Pick Location on Map</h3>
+    <div id="map"></div>
+    <button onclick="getLocation()">Use Current Location</button>
+  </div>
+
+</div>
+
+<!-- ADMIN LOGIN -->
+<div id="adminLogin" class="section hidden">
+  <div class="card" style="max-width:400px;margin:auto;">
+    <h3>Authority Login</h3>
+    <input id="adminUser" placeholder="Username">
+    <input id="adminPass" type="password" placeholder="Password">
+    <button onclick="loginAdmin()">Login</button>
+  </div>
+</div>
+
+<!-- ADMIN DASHBOARD -->
+<div id="adminDashboard" class="section hidden">
+  <div class="card">
+    <h3>Reported Potholes</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Photo</th>
+          <th>Location</th>
+          <th>Description</th>
+          <th>Status</th>
+          <th>Update</th>
+        </tr>
+      </thead>
+      <tbody id="adminTable"></tbody>
+    </table>
+
+    <button onclick="logout()">Logout</button>
+  </div>
+</div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
-  const photoInput = document.getElementById('photoInput');
-  const preview = document.getElementById('preview');
-  const locationText = document.getElementById('locationText');
+let reports = [];
+let map = null;
 
-  photoInput.addEventListener('change', () => {
-    const file = photoInput.files[0];
-    if (file) {
-      preview.src = URL.createObjectURL(file);
-      preview.style.display = 'block';
-    }
+// SECTION CONTROL
+function hideAll() {
+  roleSelect.classList.add("hidden");
+  userSection.classList.add("hidden");
+  adminLogin.classList.add("hidden");
+  adminDashboard.classList.add("hidden");
+}
+
+function openUser() {
+  hideAll();
+  userSection.classList.remove("hidden");
+  setTimeout(initMapDefault, 300);
+}
+
+function openAdmin() {
+  hideAll();
+  adminLogin.classList.remove("hidden");
+}
+
+// MAP FUNCTIONS
+function initMapDefault() {
+  if (map) return;
+  map = L.map("map").setView([20.5937, 78.9629], 15);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+  L.marker([20.5937, 78.9629]).addTo(map);
+}
+
+function getLocation() {
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      map.setView([pos.coords.latitude, pos.coords.longitude], 16);
+      L.marker([pos.coords.latitude, pos.coords.longitude]).addTo(map);
+    },
+    () => alert("Location access denied")
+  );
+}
+
+// REPORT SUBMISSION
+function submitReport() {
+  const photo = photoInput = document.getElementById("photo").files[0];
+  const loc = location.value.trim();
+  const descText = desc.value.trim();
+
+  if (!photo || !loc || !descText) {
+    alert("Fill all details");
+    return;
+  }
+
+  reports.push({
+    photo: URL.createObjectURL(photo),
+    location: loc,
+    description: descText,
+    status: "Pending"
   });
 
-  let map, marker;
+  alert("Report submitted (Pending)");
+  photoInput.value = "";
+  location.value = "";
+  desc.value = "";
+}
 
-  function initMap(lat, lng) {
-    if (map) map.remove();
-    map = L.map('map').setView([lat, lng], 17);
+// ADMIN
+function loginAdmin() {
+  if (adminUser.value === "admin" && adminPass.value === "1234") {
+    hideAll();
+    adminDashboard.classList.remove("hidden");
+    loadAdmin();
+  } else alert("Invalid login");
+}
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap'
-    }).addTo(map);
-
-    marker = L.marker([lat, lng]).addTo(map);
-
-    map.on('click', e => {
-      marker.setLatLng(e.latlng);
-      reverseGeocode(e.latlng.lat, e.latlng.lng);
-    });
-
-    setTimeout(() => map.invalidateSize(), 300);
-  }
-
-  function getLocation() {
-    navigator.geolocation.getCurrentPosition(
-      pos => initMap(pos.coords.latitude, pos.coords.longitude),
-      () => initMap(20.5937, 78.9629),
-      { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
-    );
-  }
-
-  // AUTO UPDATE MAP WHEN USER TYPES LOCATION
-  locationText.addEventListener('change', () => {
-    const query = locationText.value.trim();
-    if (!query) return;
-
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.length > 0) {
-          const lat = data[0].lat;
-          const lon = data[0].lon;
-          initMap(lat, lon);
-        }
-      });
+function loadAdmin() {
+  adminTable.innerHTML = "";
+  reports.forEach((r, i) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td><img src="${r.photo}" width="70"></td>
+      <td>${r.location}</td>
+      <td>${r.description}</td>
+      <td class="${r.status==='Pending'?'status-pending':'status-fixed'}">${r.status}</td>
+      <td>
+        <select onchange="updateStatus(${i}, this.value)">
+          <option ${r.status==='Pending'?'selected':''}>Pending</option>
+          <option ${r.status==='Fixed'?'selected':''}>Fixed</option>
+        </select>
+      </td>
+    `;
+    adminTable.appendChild(row);
   });
+}
 
-  function reverseGeocode(lat, lng) {
-    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
-      .then(res => res.json())
-      .then(data => locationText.value = data.display_name || `${lat}, ${lng}`);
-  }
+function updateStatus(i, val) {
+  reports[i].status = val;
+  loadAdmin();
+}
 
-  function submitReport() {
-    const desc = document.querySelector('textarea').value.trim();
-    const loc = locationText.value.trim();
-    const photoFile = photoInput.files[0];
-
-    if (!desc || !loc || !photoFile) {
-      alert('Please fill all details');
-      return;
-    }
-
-    if (!confirm('Confirm submission of pothole report?')) return;
-
-    const tbody = document.querySelector('#reportTable tbody');
-    const row = document.createElement('tr');
-
-    const imgTd = document.createElement('td');
-    const img = document.createElement('img');
-    img.src = URL.createObjectURL(photoFile);
-    img.style.width = '80px';
-    img.style.borderRadius = '6px';
-    imgTd.appendChild(img);
-
-    row.innerHTML = `<td></td><td>${loc}</td><td>${desc}</td>`;
-    row.children[0].appendChild(img);
-    tbody.appendChild(row);
-
-    alert('Report submitted successfully');
-    document.querySelector('textarea').value = '';
-    photoInput.value = '';
-    preview.style.display = 'none';
-  }
-
-  initMap(20.5937, 78.9629);
+function logout() {
+  hideAll();
+  roleSelect.classList.remove("hidden");
+}
 </script>
 
 </body>
 </html>
-
